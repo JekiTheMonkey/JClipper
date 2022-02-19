@@ -31,8 +31,8 @@ namespace jclip
 #ifdef linux
         const auto *pw = getpwuid(getuid());
         const auto homeDir = std::string(pw->pw_dir);
-#elif _WIN32
-        const auto homeDir = std::string("%HOMEPATH%\\");
+#else
+#error Unsupported platform
 #endif
         const auto filepath = homeDir + std::string("/.jclipper.txt");
 
@@ -60,9 +60,10 @@ namespace jclip
 
         const auto cur = m_doubleKeysBuffer.getCurBuffer();
         const auto prev = m_doubleKeysBuffer.getPrevBuffer();
+        const auto comb1 = KeysBuffer::KeyStates("100000001");
+        const auto comb2 = KeysBuffer::KeyStates("000010001");
 
-        if (auto found = std::find(copyBitsets.begin(), copyBitsets.end(), cur); 
-            found != copyBitsets.end())
+        if (cur == comb1 || cur == comb2)
         {
             if (cur != prev)
             {
