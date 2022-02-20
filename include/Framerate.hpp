@@ -3,7 +3,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/NonCopyable.hpp>
 
-using size_t = unsigned long int;
+#include <stddef.h>
 
 
 namespace jclip

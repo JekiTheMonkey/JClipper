@@ -11,6 +11,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#elif _WIN32
+#include <errhandlingapi.h>
+#include <fileapi.h>
+#include <winerror.h>
+#include <sys/stat.h>
 #endif
 
 
@@ -31,10 +36,21 @@ namespace jclip
 #ifdef linux
         const auto *pw = getpwuid(getuid());
         const auto homeDir = std::string(pw->pw_dir);
+        const auto filepath = homeDir + std::string("/.jclipper.txt");
+#elif _WIN32
+        const auto homeDir = std::string(getenv("USERPROFILE"));
+        const auto roamingDir = std::string("\\AppData\\Roaming");
+        const auto jclipperDir = std::string("\\JClipper");
+        const auto jclipperDirPath = homeDir + roamingDir + jclipperDir;
+
+        struct stat buffer;
+        if (stat(jclipperDirPath.c_str(), &buffer))
+            CreateDirectory(jclipperDirPath.c_str(), NULL);
+
+        const auto filepath = jclipperDirPath + std::string("\\.jclipper.txt");
 #else
 #error Unsupported platform
 #endif
-        const auto filepath = homeDir + std::string("/.jclipper.txt");
 
         m_stream.open(filepath, m_stream.app | m_stream.out);
         if (!m_stream.is_open())
